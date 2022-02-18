@@ -1,41 +1,64 @@
-import { useState } from 'react'
-import { FaUser } from 'react-icons/fa'
-import {  toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import {useSelector, useDispatch} from 'react-redux'
+import { useState, useEffect } from "react";
+import { FaUser } from "react-icons/fa";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useSelector, useDispatch } from "react-redux";
 // import the async code for auth
-import {register} from './../features/auth/auth-slice'
+import {
+  register,
+  reset,
+  getRegisteredUser,
+} from "./../features/auth/auth-slice";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
-  const dispatch = useDispatch()
-  const {user, loading, isSuccess, message} = useSelector((state) => state.auth)
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { user, loading, isSuccess, isError, message } = useSelector(
+    (state) => state.auth
+  );
 
   const [formData, setFormData] = useState({
-    email: '',
-    name: '',
-    password: '',
-    passwordConfirm: ''
-  })
+    email: "",
+    name: "",
+    password: "",
+    passwordConfirm: "",
+  });
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
+
+    if (isSuccess) {
+      toast.success("registered successfully");
+      navigate("/");
+    }
+
+    dispatch(reset());
+  }, [message, isSuccess]);
 
   function handleChange(e) {
     setFormData((prev) => {
-      return { ...prev, [e.target.name]: e.target.value }
-    })
+      return { ...prev, [e.target.name]: e.target.value };
+    });
   }
 
   function handleSubmit(e) {
-    e.preventDefault()
+    e.preventDefault();
 
-    if(formData.password !== formData.passwordConfirm) return toast.error('passwords do not match')
+    if (formData.password !== formData.passwordConfirm)
+      return toast.error("passwords do not match");
 
     const userData = {
       email: formData.email,
       name: formData.name,
       password: formData.password,
-      passwordConfirm: formData.passwordConfirm
-    }
+      passwordConfirm: formData.passwordConfirm,
+    };
 
-    dispatch(register(userData))
+    dispatch(register(userData));
   }
 
   return (
@@ -48,7 +71,7 @@ function Register() {
       </section>
 
       <section className="form">
-        <form  autoComplete="off" onSubmit={handleSubmit}>
+        <form autoComplete="off" onSubmit={handleSubmit}>
           <div className="form-group">
             <input
               type="text"
@@ -100,7 +123,7 @@ function Register() {
         </form>
       </section>
     </>
-  )
+  );
 }
 
-export default Register
+export default Register;

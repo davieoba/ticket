@@ -1,34 +1,50 @@
-import { useState } from 'react'
-import { FaSignInAlt } from 'react-icons/fa'
-import { toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import { login } from './../features/auth/auth-slice'
-import { useDispatch, useSelector } from 'react-redux'
+import { useState, useEffect } from "react";
+import { FaSignInAlt } from "react-icons/fa";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { login, getRegisteredUser, reset } from "./../features/auth/auth-slice";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
-  const dispatch = useDispatch()
-  const {user, loading, isSuccess, message} = useSelector(state => state.auth)
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user, loading, isSuccess, isError, message } = useSelector(
+    (state) => state.auth
+  );
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  })
+    email: "",
+    password: "",
+  });
 
   function handleChange(e) {
     setFormData((prev) => {
-      return { ...prev, [e.target.name]: e.target.value }
-    })
+      return { ...prev, [e.target.name]: e.target.value };
+    });
   }
 
   function handleSubmit(e) {
-    e.preventDefault()
+    e.preventDefault();
 
     const userData = {
       email: formData.email,
-      password: formData.password
+      password: formData.password,
+    };
+
+    dispatch(login(userData));
+  }
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
     }
 
-    dispatch(login(userData))
-  }
+    if (isSuccess) {
+      navigate("/");
+    }
+
+    dispatch(reset());
+  }, [isError, isSuccess, message, reset]);
 
   return (
     <>
@@ -70,7 +86,7 @@ function Login() {
         </form>
       </section>
     </>
-  )
+  );
 }
 
-export default Login
+export default Login;
